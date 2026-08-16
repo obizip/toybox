@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toybox - Ebitengine WebAssembly Games</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <h1 class="site-title">Toybox</h1>
+      <p class="site-subtitle">A collection of WebAssembly games built with Go and Ebitengine.</p>
+    </header>
+
+    <main>
+      <div class="game-grid">
+        {{range .}}
+        <a href="./{{.ID}}/" class="game-card">
+          <h2 class="game-title">{{.Title}}</h2>
+          <p class="game-desc">{{.Description}}</p>
+          <span class="game-link-text">Play &rarr;</span>
+        </a>
+        {{end}}
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>Built with <a href="https://golang.org" target="_blank" rel="noopener">Go</a> & <a href="https://ebitengine.org" target="_blank" rel="noopener">Ebitengine</a></p>
+    </footer>
+  </div>
+</body>
+</html>

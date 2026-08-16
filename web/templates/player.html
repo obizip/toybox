@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}} - Toybox</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../wasm_exec.js"></script>
+</head>
+<body class="player-body">
+  <div class="player-container">
+    <header class="player-header">
+      <a href="../" class="back-link">&larr; Back to list</a>
+      <h1 class="player-title">{{.Title}}</h1>
+      {{if .Description}}
+      <p class="player-desc">{{.Description}}</p>
+      {{end}}
+    </header>
+
+    <main class="player-main">
+      <div id="loading" class="loading-state">Loading WebAssembly...</div>
+      <div id="game-container" class="game-container"></div>
+    </main>
+  </div>
+
+  <script>
+    if (!WebAssembly.instantiateStreaming) {
+      WebAssembly.instantiateStreaming = async (resp, importObject) => {
+        const source = await (await resp).arrayBuffer();
+        return await WebAssembly.instantiate(source, importObject);
+      };
+    }
+
+    const go = new Go();
+    const loadingElem = document.getElementById('loading');
+
+    WebAssembly.instantiateStreaming(fetch('./game.wasm'), go.importObject)
+      .then((result) => {
+        if (loadingElem) {
+          loadingElem.style.display = 'none';
+        }
+        go.run(result.instance);
+      })
+      .catch((err) => {
+        console.error('Failed to load WebAssembly:', err);
+        if (loadingElem) {
+          loadingElem.textContent = 'Failed to load game: ' + err.message;
+          loadingElem.classList.add('error');
+        }
+      });
+  </script>
+</body>
+</html>
