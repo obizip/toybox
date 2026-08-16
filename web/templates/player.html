@@ -18,7 +18,10 @@
     </header>
 
     <main class="player-main">
-      <div id="loading" class="loading-state">Loading WebAssembly...</div>
+      <div id="loading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading WebAssembly...</p>
+      </div>
       <div id="canvas-wrapper" class="canvas-wrapper"></div>
     </main>
   </div>
@@ -34,8 +37,7 @@
     const wrapper = document.getElementById('canvas-wrapper');
     const loadingElem = document.getElementById('loading');
 
-    // Ebitengine adds <canvas> to <body> by default.
-    // Move any created canvas into our wrapper so it stays within the card container.
+    // Move any created canvas from body to our wrapper
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
@@ -59,8 +61,7 @@
       .catch((err) => {
         console.error('Failed to load WebAssembly:', err);
         if (loadingElem) {
-          loadingElem.textContent = 'Failed to load game: ' + err.message;
-          loadingElem.classList.add('error');
+          loadingElem.innerHTML = '<p class="error">Failed to load game: ' + err.message + '</p>';
         }
       });
   </script>

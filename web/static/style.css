@@ -16,6 +16,10 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-primary);
@@ -111,17 +115,21 @@ body {
   text-decoration: underline;
 }
 
-/* Player page styles */
+/* -----------------------------------------------------------------------------
+   Player Page Styles (Fixed Dimensions to Prevent Layout Shift)
+   ----------------------------------------------------------------------------- */
+
 .player-body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 16px 48px;
+  padding: 40px 16px 60px !important;
+  margin: 0 !important;
 }
 
 .player-container {
   width: 100%;
-  max-width: 680px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
 }
@@ -157,44 +165,73 @@ body {
 }
 
 .player-main {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 480px;
+  position: relative;
+  width: 640px;
+  height: 480px;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
   background-color: #000;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .canvas-wrapper {
   width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
-/* Override Ebitengine default full-screen / absolute positioning */
+/* Ensure Ebitengine canvas respects container dimensions perfectly */
 .canvas-wrapper canvas,
 canvas {
   position: static !important;
   display: block !important;
-  margin: 0 auto !important;
+  width: 100% !important;
+  height: 100% !important;
   max-width: 100% !important;
-  height: auto !important;
+  max-height: 100% !important;
   outline: none;
 }
 
-.loading-state {
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: var(--surface-color);
   color: var(--text-secondary);
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  padding: 40px;
+  z-index: 10;
 }
 
-.loading-state.error {
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-overlay p.error {
   color: #ff6b6b;
 }
