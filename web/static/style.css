@@ -116,20 +116,19 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px;
+  padding: 32px 16px 48px;
 }
 
 .player-container {
   width: 100%;
-  max-width: 960px;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .player-header {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .back-link {
@@ -137,7 +136,7 @@ body {
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.9rem;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   transition: color 0.15s ease;
 }
 
@@ -164,11 +163,29 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 480px;
-  background-color: var(--surface-color);
+  background-color: #000;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+}
+
+.canvas-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Override Ebitengine default full-screen / absolute positioning */
+.canvas-wrapper canvas,
+canvas {
+  position: static !important;
+  display: block !important;
+  margin: 0 auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  outline: none;
 }
 
 .loading-state {
@@ -180,9 +197,4 @@ body {
 
 .loading-state.error {
   color: #ff6b6b;
-}
-
-canvas {
-  display: block;
-  outline: none;
 }

@@ -19,7 +19,7 @@
 
     <main class="player-main">
       <div id="loading" class="loading-state">Loading WebAssembly...</div>
-      <div id="game-container" class="game-container"></div>
+      <div id="canvas-wrapper" class="canvas-wrapper"></div>
     </main>
   </div>
 
@@ -31,8 +31,23 @@
       };
     }
 
-    const go = new Go();
+    const wrapper = document.getElementById('canvas-wrapper');
     const loadingElem = document.getElementById('loading');
+
+    // Ebitengine adds <canvas> to <body> by default.
+    // Move any created canvas into our wrapper so it stays within the card container.
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.tagName === 'CANVAS') {
+            wrapper.appendChild(node);
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true });
+
+    const go = new Go();
 
     WebAssembly.instantiateStreaming(fetch('./game.wasm'), go.importObject)
       .then((result) => {
