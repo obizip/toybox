@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+    }
+    #loading {
+      color: #949ca8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <script src="../wasm_exec.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (!WebAssembly.instantiateStreaming) {
+        WebAssembly.instantiateStreaming = async (resp, importObject) => {
+          const source = await (await resp).arrayBuffer();
+          return await WebAssembly.instantiate(source, importObject);
+        };
+      }
+
+      const go = new Go();
+      try {
+        const result = await WebAssembly.instantiateStreaming(fetch('./game.wasm'), go.importObject);
+        const loading = document.getElementById('loading');
+        if (loading) loading.remove();
+        go.run(result.instance);
+      } catch (err) {
+        console.error('Failed to load WebAssembly:', err);
+        const loading = document.getElementById('loading');
+        if (loading) {
+          loading.textContent = 'Failed to load game: ' + err.message;
+          loading.style.color = '#ff6b6b';
+        }
+      }
+    });
+  </script>
+  <p id="loading">Loading WebAssembly...</p>
+</body>
+</html>

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{.Title}} - Toybox</title>
   <link rel="stylesheet" href="../style.css">
-  <script src="../wasm_exec.js"></script>
 </head>
 <body class="player-body">
   <div class="player-container">
@@ -18,52 +17,8 @@
     </header>
 
     <main class="player-main">
-      <div id="loading" class="loading-overlay">
-        <div class="loading-spinner"></div>
-        <p>Loading WebAssembly...</p>
-      </div>
-      <div id="canvas-wrapper" class="canvas-wrapper"></div>
+      <iframe src="./game.html" class="game-frame" width="640" height="480" allow="autoplay"></iframe>
     </main>
   </div>
-
-  <script>
-    if (!WebAssembly.instantiateStreaming) {
-      WebAssembly.instantiateStreaming = async (resp, importObject) => {
-        const source = await (await resp).arrayBuffer();
-        return await WebAssembly.instantiate(source, importObject);
-      };
-    }
-
-    const wrapper = document.getElementById('canvas-wrapper');
-    const loadingElem = document.getElementById('loading');
-
-    // Move any created canvas from body to our wrapper
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (node.tagName === 'CANVAS') {
-            wrapper.appendChild(node);
-          }
-        }
-      }
-    });
-    observer.observe(document.body, { childList: true });
-
-    const go = new Go();
-
-    WebAssembly.instantiateStreaming(fetch('./game.wasm'), go.importObject)
-      .then((result) => {
-        if (loadingElem) {
-          loadingElem.style.display = 'none';
-        }
-        go.run(result.instance);
-      })
-      .catch((err) => {
-        console.error('Failed to load WebAssembly:', err);
-        if (loadingElem) {
-          loadingElem.innerHTML = '<p class="error">Failed to load game: ' + err.message + '</p>';
-        }
-      });
-  </script>
 </body>
 </html>

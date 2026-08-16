@@ -76,6 +76,11 @@ func main() {
 		log.Fatalf("Failed to parse player.html template: %v", err)
 	}
 
+	gameHTMLBytes, err := contentFS.ReadFile("templates/game.html")
+	if err != nil {
+		log.Fatalf("Failed to read game.html template: %v", err)
+	}
+
 	// Discover game directories in root
 	entries, err := os.ReadDir(rootDir)
 	if err != nil {
@@ -120,7 +125,7 @@ func main() {
 			log.Fatalf("Failed to build Wasm for %s: %v", name, err)
 		}
 
-		// Render game's index.html
+		// Render game's index.html (player page with iframe)
 		playerHTMLPath := filepath.Join(gameDistDir, "index.html")
 		var playerBuf bytes.Buffer
 		if err := playerTmpl.Execute(&playerBuf, meta); err != nil {
@@ -128,6 +133,12 @@ func main() {
 		}
 		if err := os.WriteFile(playerHTMLPath, playerBuf.Bytes(), 0644); err != nil {
 			log.Fatalf("Failed to write %s: %v", playerHTMLPath, err)
+		}
+
+		// Write game.html (iframe target page)
+		gameHTMLPath := filepath.Join(gameDistDir, "game.html")
+		if err := os.WriteFile(gameHTMLPath, gameHTMLBytes, 0644); err != nil {
+			log.Fatalf("Failed to write %s: %v", gameHTMLPath, err)
 		}
 
 		games = append(games, meta)
