@@ -9,9 +9,6 @@ type Vec3 struct {
 	X, Y, Z float64
 }
 
-// Point3 is just alias for Vec3, but useful for geometric clarity in the code.
-type Point3 = Vec3
-
 func NewVec3(e0, e1, e2 float64) Vec3 {
 	return Vec3 { 
 		X: e0,
@@ -19,6 +16,14 @@ func NewVec3(e0, e1, e2 float64) Vec3 {
 		Z: e2,
 	}
 }
+
+// Point3 is just alias for Vec3, but useful for geometric clarity in the code.
+type Point3 = Vec3
+
+func NewPoint3(x, y, z float64) Color {
+	return NewVec3(x, y, z)
+}
+
 
 func Full(f float64) Vec3 {
 	return NewVec3(f, f, f)
