@@ -12,9 +12,9 @@ func NewColor(r, g, b float64) Color {
 }
 
 func (c Color) Write(writer io.Writer) {
-	r := c.X()
-	g := c.Y()
-	b := c.Z()
+	r := c.X
+	g := c.Y
+	b := c.Z
 
 	ir := int(255.999 * r);
 	ig := int(255.999 * g);
