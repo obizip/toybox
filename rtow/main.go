@@ -6,7 +6,25 @@ import (
 	"os"
 )
 
+func hitSphere(center Point3, radius float64, ray Ray) bool {
+	oc := center.Sub(ray.Origin)
+	a := ray.Direction.Dot(ray.Direction)
+	b := -2.0 * ray.Direction.Dot(oc)
+	c := oc.Dot(oc) - radius * radius
+	// Quadratic Formula
+	// \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+	// We can determin the number of solutions by calculating the discriminant:
+	// positive means two real solutions,
+	// negative means no real solutions,
+	// and zero means one real solution.
+	discriminant := b * b - 4.0 * a * c
+	return (discriminant >= 0.0)
+}
+
 func rayColor(ray Ray) Color {
+	if hitSphere(NewPoint3(0., 0., -1), 0.5, ray) {
+		return NewColor(1., 0., 0.)
+	}
 	unitDirection := ray.Direction.Unit()
 	a := 0.5 * (unitDirection.Y + 1.0)
 	return Full(1.0 - a).Mul(NewColor(1.0, 1.0, 1.0)).Add(Full(a).Mul(NewColor(0.5, 0.7, 1.0)))

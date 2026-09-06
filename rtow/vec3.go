@@ -70,13 +70,13 @@ func (v Vec3) Length() float64 {
 }
 
 // Vector Utility Functions
-func (v *Vec3) ToString() string {
+func (v Vec3) ToString() string {
 	prec := 5
 	floatToString := func(f float64) string { return strconv.FormatFloat(f, 'f', prec, 64)}
 	return floatToString(v.X) + " " + floatToString(v.Y) + " " + floatToString(v.Z)
 }
 
-func (v *Vec3) Dot(other *Vec3) float64 {
+func (v Vec3) Dot(other Vec3) float64 {
 	return v.X * other.X + v.Y * other.Y + v.Z * other.Z
 }
 
