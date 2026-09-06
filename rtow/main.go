@@ -13,7 +13,8 @@ func main() {
 
 	aspectRatio := 16.0 / 9.0
 	imageWidth := 400
+	samplesPerPixel := 100
 
-	camera := NewCamera(logger, aspectRatio, imageWidth, world)
+	camera := NewCamera(logger, aspectRatio, imageWidth, samplesPerPixel, world)
 	camera.Render(world)
 }

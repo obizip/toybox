@@ -16,9 +16,10 @@ func (c Color) Write(writer io.Writer) {
 	g := c.Y
 	b := c.Z
 
-	ir := int(255.999 * r);
-	ig := int(255.999 * g);
-	ib := int(255.999 * b);
+	intensity := NewInterval(0.0, 0.999)
+	ir := int(256 * intensity.Clamp(r));
+	ig := int(256 * intensity.Clamp(g));
+	ib := int(256 * intensity.Clamp(b));
 
 	fmt.Fprintf(writer, "%d %d %d\n", ir, ig, ib)
 }

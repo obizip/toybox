@@ -17,14 +17,14 @@ func NewInterval(min, max float64) Interval {
 
 func NewEmptyInterval(min, max float64) Interval {
 	return Interval{
-		Min: math.Inf(1), 
+		Min: math.Inf(1),
 		Max: math.Inf(-1),
 	}
 }
 
 func NewUniverseInterval(min, max float64) Interval {
 	return Interval{
-		Min: math.Inf(-1), 
+		Min: math.Inf(-1),
 		Max: math.Inf(1),
 	}
 }
@@ -39,4 +39,14 @@ func (i *Interval) Contains(x float64) bool {
 
 func (i *Interval) Surrounds(x float64) bool {
 	return i.Min < x && x < i.Max
+}
+
+func (i *Interval) Clamp(x float64) float64 {
+	if x < i.Min {
+		return i.Min
+	}
+	if x > i.Max {
+		return i.Max
+	}
+	return x
 }
