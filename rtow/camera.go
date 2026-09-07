@@ -103,7 +103,8 @@ func (c Camera) sampleSquare() Vec3 {
 
 func (c Camera) rayColor(ray Ray, world Hittable) Color {
 	if record, ok := world.Hit(ray, NewInterval(0, math.Inf(1))); ok {
-		return Full(0.5).Mul(record.Normal.Add(NewColor(1., 1., 1.)))
+		direction := NewRandVec3OnHemisphere(record.Normal)
+		return Full(0.5).Mul(c.rayColor(NewRay(record.P, direction), world))
 	}
 
 	unitDirection := ray.Direction.Unit()

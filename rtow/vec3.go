@@ -17,11 +17,40 @@ func NewVec3(e0, e1, e2 float64) Vec3 {
 	}
 }
 
-// Point3 is just alias for Vec3, but useful for geometric clarity in the code.
-type Point3 = Vec3
+func NewRandVec3() Vec3 {
+	return Vec3{
+		X: Rand(),
+		Y: Rand(),
+		Z: Rand(),
+	}
+}
 
-func NewPoint3(x, y, z float64) Point3 {
-	return NewVec3(x, y, z)
+func NewRandVec3From(min, max float64) Vec3 {
+	return Vec3{
+		X: RandFrom(min, max),
+		Y: RandFrom(min, max),
+		Z: RandFrom(min, max),
+	}
+}
+
+func NewRandUnitVec3() Vec3 {
+	for {
+		p := NewRandVec3From(-1, 1)
+		lensq := p.LengthSquared()
+		if 1e-160 < lensq && lensq <= 1 {
+			return p.Div(Full(math.Sqrt(lensq)))
+		}
+	}
+}
+
+func NewRandVec3OnHemisphere(normal Vec3) Vec3 {
+	onUnitSphere := NewRandUnitVec3()
+	if onUnitSphere.Dot(normal) > 0.0 {
+		// In the same hemisphere as the normal.
+		return onUnitSphere
+	} else {
+		return onUnitSphere.Neg()
+	}
 }
 
 func Full(f float64) Vec3 {
@@ -81,4 +110,12 @@ func (v Vec3) Dot(other Vec3) float64 {
 
 func (v Vec3) Unit() Vec3 {
 	return v.Div(Full(v.Length()))
+}
+
+
+// Point3 is just alias for Vec3, but useful for geometric clarity in the code.
+type Point3 = Vec3
+
+func NewPoint3(x, y, z float64) Point3 {
+	return NewVec3(x, y, z)
 }
