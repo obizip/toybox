@@ -20,9 +20,10 @@ type Camera struct {
 	Pixel00Loc        Point3
 	PixelDeltaU       Vec3
 	PixelDeltaV       Vec3
+	MaxDepth          int
 }
 
-func NewCamera(logger *slog.Logger, aspectRatio float64, imageWidth int, samplesPerPixel int, world Hittable) Camera {
+func NewCamera(logger *slog.Logger, world Hittable, aspectRatio float64, imageWidth int, samplesPerPixel int, maxDepth int) Camera {
 	//
 	// Image
 	//
@@ -60,6 +61,7 @@ func NewCamera(logger *slog.Logger, aspectRatio float64, imageWidth int, samples
 		Pixel00Loc:        pixel100Loc,
 		PixelDeltaU:       pixelDeltaU,
 		PixelDeltaV:       pixelDeltaV,
+		MaxDepth:          maxDepth,
 	}
 }
 
@@ -72,7 +74,7 @@ func (c Camera) Render(world Hittable) {
 			pixelColor := NewColor(0., 0., 0.)
 			for range c.SamplePerPixel {
 				ray := c.getRay(i, j)
-				pixelColor = pixelColor.Add(c.rayColor(ray, world))
+				pixelColor = pixelColor.Add(c.rayColor(ray, world, c.MaxDepth))
 			}
 			// pixelCenter := c.Pixel100Loc.Add(Full(float64(i)).Mul(c.PixelDeltaU)).Add(Full(float64(j)).Mul(c.PixelDeltaV))
 			// rayDirection := pixelCenter.Sub(c.Center)
@@ -101,10 +103,15 @@ func (c Camera) sampleSquare() Vec3 {
 	return NewVec3(Rand()-0.5, Rand()-0.5, 0)
 }
 
-func (c Camera) rayColor(ray Ray, world Hittable) Color {
-	if record, ok := world.Hit(ray, NewInterval(0, math.Inf(1))); ok {
-		direction := NewRandVec3OnHemisphere(record.Normal)
-		return Full(0.5).Mul(c.rayColor(NewRay(record.P, direction), world))
+func (c Camera) rayColor(ray Ray, world Hittable, depth int) Color {
+	// If we've exceeded the ray bounce limit, no more light is gathered.
+	if depth <= 0 {
+		return NewColor(0., 0., 0.)
+	}
+
+	if record, ok := world.Hit(ray, NewInterval(0.001, math.Inf(1))); ok {
+		direction := record.Normal.Add(NewRandUnitVec3())
+		return Full(0.5).Mul(c.rayColor(NewRay(record.P, direction), world, depth-1))
 	}
 
 	unitDirection := ray.Direction.Unit()
