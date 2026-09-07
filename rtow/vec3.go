@@ -112,7 +112,6 @@ func (v Vec3) Unit() Vec3 {
 	return v.Div(Full(v.Length()))
 }
 
-
 // Point3 is just alias for Vec3, but useful for geometric clarity in the code.
 type Point3 = Vec3
 

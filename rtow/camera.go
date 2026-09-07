@@ -17,7 +17,7 @@ type Camera struct {
 	SamplePerPixel    int
 	PixelSamplesScale float64
 	Center            Point3
-	Pixel00Loc       Point3
+	Pixel00Loc        Point3
 	PixelDeltaU       Vec3
 	PixelDeltaV       Vec3
 }
@@ -57,7 +57,7 @@ func NewCamera(logger *slog.Logger, aspectRatio float64, imageWidth int, samples
 		SamplePerPixel:    samplesPerPixel,
 		PixelSamplesScale: pixelSamplesScale,
 		Center:            center,
-		Pixel00Loc:       pixel100Loc,
+		Pixel00Loc:        pixel100Loc,
 		PixelDeltaU:       pixelDeltaU,
 		PixelDeltaV:       pixelDeltaV,
 	}
