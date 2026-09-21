@@ -97,6 +97,12 @@ func (v Vec3) Length() float64 {
 	return math.Sqrt(v.LengthSquared())
 }
 
+func (v Vec3) NearZero() bool {
+	// Return true if the vector is close to zero in all dimention
+	s := 1e-8
+	return math.Abs(v.X) < s && (math.Abs(v.Y) < s) && (math.Abs(v.Z) < s)
+}
+
 // Vector Utility Functions
 func (v Vec3) String() string {
 	prec := 5
@@ -110,6 +116,10 @@ func (v Vec3) Dot(other Vec3) float64 {
 
 func (v Vec3) Unit() Vec3 {
 	return v.Div(Full(v.Length()))
+}
+
+func (v Vec3) Reflect(n Vec3) Vec3 {
+	return v.Sub(Full(2. * v.Dot(n)).Mul(n))
 }
 
 // Point3 is just alias for Vec3, but useful for geometric clarity in the code.

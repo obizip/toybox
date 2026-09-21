@@ -5,14 +5,17 @@ import (
 )
 
 type Sphere struct {
-	Center Point3
-	Radius float64
+	Center   Point3
+	Radius   float64
+	Material Material
 }
 
-func NewSphere(center Point3, radius float64) Sphere {
-	return Sphere {
+func NewSphere(center Point3, radius float64, material Material) Sphere {
+	// TODO: Initialize the material pointer
+	return Sphere{
 		Center: center,
 		Radius: max(0, radius),
+		Material: material,
 	}
 }
 
@@ -30,7 +33,7 @@ func (s Sphere) Hit(ray Ray, rayT Interval) (*HitRecord, bool) {
 	sqrtd := math.Sqrt(discriminant)
 
 	// Find the nearest root that lies in the acceptable range.
-	root := (h - sqrtd) / a;
+	root := (h - sqrtd) / a
 	if !rayT.Surrounds(root) {
 		root = (h + sqrtd) / a
 		if !rayT.Surrounds(root) {
@@ -41,10 +44,10 @@ func (s Sphere) Hit(ray Ray, rayT Interval) (*HitRecord, bool) {
 	t := root
 	p := ray.At(t)
 	normal := p.Sub(s.Center).Div(Full(s.Radius))
-	record := NewHitRecord(p, normal, t, false)
+	record := NewHitRecord(p, normal, t, false, s.Material)
 
 	outwardNormal := p.Sub(s.Center).Div(Full(s.Radius))
 	record.SetFaceNormal(ray, outwardNormal)
 
-	return &record, true
+	return record, true
 }

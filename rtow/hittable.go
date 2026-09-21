@@ -3,6 +3,7 @@ package main
 type HitRecord struct {
 	P         Point3
 	Normal    Vec3
+	Material  Material
 	T         float64
 	FrontFace bool
 }
@@ -11,16 +12,17 @@ type Hittable interface {
 	Hit(ray Ray, rayT Interval) (*HitRecord, bool)
 }
 
-func NewHitRecord(p Point3, normal Vec3, t float64, frontFace bool) HitRecord {
-	return HitRecord{
+func NewHitRecord(p Point3, normal Vec3, t float64, frontFace bool, material Material) *HitRecord {
+	return &HitRecord{
 		P:         p,
 		Normal:    normal,
+		Material:  material,
 		T:         t,
 		FrontFace: frontFace,
 	}
 }
 
-func (r HitRecord) SetFaceNormal(ray Ray, outwardNormal Vec3) {
+func (r *HitRecord) SetFaceNormal(ray Ray, outwardNormal Vec3) {
 	// Set the hit record normal vector.
 	// NOTE: the parameter `outward_normal` is assumed to have unit length.
 

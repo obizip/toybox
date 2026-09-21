@@ -33,7 +33,7 @@ func NewCamera(logger *slog.Logger, world Hittable, aspectRatio float64, imageWi
 	//
 	// Camera
 	//
-	focal_length := 1.0
+	focalLength := 1.0
 	viewportHeight := 2.0
 	viewportWidth := viewportHeight * float64(imageWidth) / float64(imageHeight)
 	center := NewPoint3(0.0, 0.0, 0.0)
@@ -47,8 +47,8 @@ func NewCamera(logger *slog.Logger, world Hittable, aspectRatio float64, imageWi
 	pixelDeltaV := viewportV.Div(Full(float64(imageHeight)))
 
 	// Calculate the location of the upper left pixel.
-	viewportUpperLeft := center.Sub(NewVec3(0., 0., focal_length)).Sub(viewportU.Div(Full(2))).Sub(viewportV.Div(Full(2)))
-	pixel100Loc := viewportUpperLeft.Add(Full(0.5).Mul(pixelDeltaU.Add(pixelDeltaV)))
+	viewportUpperLeft := center.Sub(NewVec3(0., 0., focalLength)).Sub(viewportU.Div(Full(2))).Sub(viewportV.Div(Full(2)))
+	pixel00Loc := viewportUpperLeft.Add(Full(0.5).Mul(pixelDeltaU.Add(pixelDeltaV)))
 
 	return Camera{
 		Logger:            logger,
@@ -58,7 +58,7 @@ func NewCamera(logger *slog.Logger, world Hittable, aspectRatio float64, imageWi
 		SamplePerPixel:    samplesPerPixel,
 		PixelSamplesScale: pixelSamplesScale,
 		Center:            center,
-		Pixel00Loc:        pixel100Loc,
+		Pixel00Loc:        pixel00Loc,
 		PixelDeltaU:       pixelDeltaU,
 		PixelDeltaV:       pixelDeltaV,
 		MaxDepth:          maxDepth,
@@ -110,8 +110,10 @@ func (c Camera) rayColor(ray Ray, world Hittable, depth int) Color {
 	}
 
 	if record, ok := world.Hit(ray, NewInterval(0.001, math.Inf(1))); ok {
-		direction := record.Normal.Add(NewRandUnitVec3())
-		return Full(0.5).Mul(c.rayColor(NewRay(record.P, direction), world, depth-1))
+		if attenuation, scattered, ok := record.Material.Scatter(ray, record); ok {
+			return attenuation.Mul(c.rayColor(scattered, world, depth-1))
+		}
+		return NewColor(0., 0., 0.)
 	}
 
 	unitDirection := ray.Direction.Unit()
