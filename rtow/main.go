@@ -9,11 +9,10 @@ func main() {
 
 	world := NewHittableList()
 
-
 	materialGround := NewLambertial(NewColor(0.8, 0.8, 0.0))
 	materialCenter := NewLambertial(NewColor(0.1, 0.2, 0.5))
-	materialLeft := NewMetal(NewColor(0.8, 0.8, 0.8))
-	materialRight := NewMetal(NewColor(0.8, 0.6, 0.2))
+	materialLeft := NewDielectric(1.50)
+	materialRight := NewMetal(NewColor(0.8, 0.6, 0.2), 1.0)
 
 	world.Add(NewSphere(NewPoint3(0.0, -100.5, -1.0), 100.0, &materialGround))
 	world.Add(NewSphere(NewPoint3(0.0, 0.0, -1.2), 0.5, &materialCenter))

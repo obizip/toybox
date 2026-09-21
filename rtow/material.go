@@ -30,20 +30,48 @@ func (l *Lambertian) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, s
 
 type Metal struct {
 	Albedo Color
+	Fuzz  float64
 }
 
-func NewMetal(albedo Color) Metal {
+func NewMetal(albedo Color, fuzz float64) Metal {
 	return Metal{
 		Albedo: albedo,
+		Fuzz: fuzz,
 	}
 }
 
 func (m *Metal) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool) {
 	reflected := rayIn.Direction.Reflect(record.Normal)
+	reflected = reflected.Unit().Add(Full(m.Fuzz).Mul(NewRandUnitVec3()))
 	scattered = NewRay(record.P, reflected)
 	attenuation = m.Albedo
-	ok = true
+	ok = scattered.Direction.Dot(record.Normal) > 0
 	return
 }
 
+type Dielectric struct {
+	// Refractive index in vacuum or air, or the ratio of the material's refractive index
+	// over the refractive index of the enclosing media.
+	RefractionIndex float64
+}
 
+func NewDielectric(refractionIndex float64) Dielectric {
+	return Dielectric {
+		RefractionIndex: refractionIndex,
+	}
+}
+
+func (d *Dielectric) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool) {
+	attenuation = NewColor(1.0, 1.0, 1.0)
+	var ri float64
+	if record.FrontFace {
+		ri = 1.0 / d.RefractionIndex
+	} else {
+		ri = d.RefractionIndex
+	}
+	unitDirection := rayIn.Direction.Unit()
+	refracted := unitDirection.Refract(unitDirection, record.Normal, ri)
+	scattered = NewRay(record.P, refracted)
+	ok = true
+	return
+}

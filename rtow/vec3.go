@@ -122,6 +122,13 @@ func (v Vec3) Reflect(n Vec3) Vec3 {
 	return v.Sub(Full(2. * v.Dot(n)).Mul(n))
 }
 
+func (v Vec3) Refract(uv, n Vec3, etaiOverEtat float64) Vec3 {
+	cosTheta := min(uv.Neg().Dot(n), 1.0)
+	rOutPerp := Full(etaiOverEtat).Mul(uv.Add(Full(cosTheta).Mul(n)))
+	rOutParallel := Full(-math.Sqrt(math.Abs(1.0 - rOutPerp.LengthSquared()))).Mul(n)
+	return rOutPerp.Add(rOutParallel)
+}
+
 // Point3 is just alias for Vec3, but useful for geometric clarity in the code.
 type Point3 = Vec3
 
