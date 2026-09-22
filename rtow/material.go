@@ -34,13 +34,13 @@ func (l *Lambertian) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, s
 
 type Metal struct {
 	Albedo Color
-	Fuzz  float64
+	Fuzz   float64
 }
 
 func NewMetal(albedo Color, fuzz float64) Metal {
 	return Metal{
 		Albedo: albedo,
-		Fuzz: fuzz,
+		Fuzz:   fuzz,
 	}
 }
 
@@ -60,7 +60,7 @@ type Dielectric struct {
 }
 
 func NewDielectric(refractionIndex float64) Dielectric {
-	return Dielectric {
+	return Dielectric{
 		RefractionIndex: refractionIndex,
 	}
 }
@@ -77,9 +77,9 @@ func (d *Dielectric) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, s
 	cosTheta := min(unitDirection.Neg().Dot(record.Normal), 1.0)
 	sinTheta := math.Sqrt(1.0 - cosTheta*cosTheta)
 
-	cannotRefract := ri * sinTheta > 1.0
+	cannotRefract := ri*sinTheta > 1.0
 	var direction Vec3
-	if cannotRefract {
+	if cannotRefract || reflectance(cosTheta, ri) > Rand() {
 		direction = unitDirection.Reflect(record.Normal)
 	} else {
 		direction = unitDirection.Refract(record.Normal, ri)
@@ -88,4 +88,11 @@ func (d *Dielectric) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, s
 	scattered = NewRay(record.P, direction)
 	ok = true
 	return
+}
+
+func reflectance(cosine, refractionIndex float64) float64 {
+	// Use Schlick's approximation for reflectance.
+	r0 := (1 - refractionIndex) / (1 + refractionIndex)
+	r0 = r0 * r0
+	return r0 + (1-r0)*math.Pow((1-cosine), 5)
 }
