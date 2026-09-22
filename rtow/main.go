@@ -50,8 +50,8 @@ func main() {
 	world.Add(NewSphere(NewPoint3(4., 1., 0.), 1.0, material3))
 
 	aspectRatio := 16.0 / 9.0
-	imageWidth := 400
-	samplesPerPixel := 100
+	imageWidth := 1200
+	samplesPerPixel := 500
 	maxDepth := 50
 	verticalFov := 20.0
 	lookFrom := NewPoint3(13., 2., 3.)
@@ -61,8 +61,9 @@ func main() {
 	defocusAngle := 0.6
 	focusDistance := 10.0
 
+	worldBVH := NewBVHNode(world.Objects)
 	camera := NewCamera(
-		logger, world, aspectRatio, imageWidth, samplesPerPixel, maxDepth, verticalFov, lookFrom, lookAt, verticalUp, defocusAngle, focusDistance)
+		logger, aspectRatio, imageWidth, samplesPerPixel, maxDepth, verticalFov, lookFrom, lookAt, verticalUp, defocusAngle, focusDistance)
 
-	camera.Render(world)
+	camera.Render(worldBVH)
 }

@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log/slog"
 	"math"
 	"os"
+	"runtime"
+	"sync"
+	"sync/atomic"
 )
 
 type Camera struct {
@@ -49,7 +53,7 @@ type Camera struct {
 	DefocusDiskV Vec3
 }
 
-func NewCamera(logger *slog.Logger, world Hittable, aspectRatio float64, imageWidth int, samplesPerPixel int, maxDepth int, verticalFov float64, lookFrom, lookAt Point3, verticalUp Vec3, defocusAngle, focusDistance float64) Camera {
+func NewCamera(logger *slog.Logger, aspectRatio float64, imageWidth int, samplesPerPixel int, maxDepth int, verticalFov float64, lookFrom, lookAt Point3, verticalUp Vec3, defocusAngle, focusDistance float64) Camera {
 	//
 	// Image
 	//
@@ -114,19 +118,54 @@ func NewCamera(logger *slog.Logger, world Hittable, aspectRatio float64, imageWi
 }
 
 func (c Camera) Render(world Hittable) {
-	fmt.Print("P3\n", c.ImageWidth, c.ImageHeight, "\n255\n")
+	pixels := make([]Color, c.ImageWidth*c.ImageHeight)
+	jobs := make(chan int)
+	workers := runtime.GOMAXPROCS(0)
+	reportEvery := max(c.ImageHeight/20, 1)
+	var completedRows atomic.Int64
+	var wg sync.WaitGroup
+
+	c.Logger.Info("Rendering", "workers", workers)
+	for range workers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := range jobs {
+				rowStart := j * c.ImageWidth
+				for i := range c.ImageWidth {
+					pixelColor := NewColor(0., 0., 0.)
+					for range c.SamplePerPixel {
+						ray := c.getRay(i, j)
+						pixelColor = pixelColor.Add(c.rayColor(ray, world, c.MaxDepth))
+					}
+					pixels[rowStart+i] = Full(c.PixelSamplesScale).Mul(pixelColor)
+				}
+
+				done := completedRows.Add(1)
+				if done%int64(reportEvery) == 0 || done == int64(c.ImageHeight) {
+					c.Logger.Info("Rendering progress",
+						"completedRows", done,
+						"totalRows", c.ImageHeight,
+						"percent", 100*done/int64(c.ImageHeight),
+					)
+				}
+			}
+		}()
+	}
 
 	for j := range c.ImageHeight {
-		c.Logger.Info("Scanning lines", "remainingLines", c.ImageHeight-j)
-		for i := range c.ImageWidth {
-			pixelColor := NewColor(0., 0., 0.)
-			for range c.SamplePerPixel {
-				ray := c.getRay(i, j)
-				pixelColor = pixelColor.Add(c.rayColor(ray, world, c.MaxDepth))
-			}
-			pixelColor = Full(c.PixelSamplesScale).Mul(pixelColor)
-			pixelColor.Write(os.Stdout)
-		}
+		jobs <- j
+	}
+	close(jobs)
+	wg.Wait()
+
+	writer := bufio.NewWriterSize(os.Stdout, 1<<20)
+	fmt.Fprintf(writer, "P3\n%d %d\n255\n", c.ImageWidth, c.ImageHeight)
+	for _, pixelColor := range pixels {
+		pixelColor.Write(writer)
+	}
+	if err := writer.Flush(); err != nil {
+		c.Logger.Error("Writing image failed", "error", err)
 	}
 	c.Logger.Info("Finished")
 }

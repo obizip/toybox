@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"math"
+	"strconv"
 )
 
 type Color = Vec3
@@ -38,5 +38,13 @@ func (c Color) Write(writer io.Writer) {
 	ig := int(256 * intensity.Clamp(g))
 	ib := int(256 * intensity.Clamp(b))
 
-	fmt.Fprintf(writer, "%d %d %d\n", ir, ig, ib)
+	var buffer [32]byte
+	line := buffer[:0]
+	line = strconv.AppendInt(line, int64(ir), 10)
+	line = append(line, ' ')
+	line = strconv.AppendInt(line, int64(ig), 10)
+	line = append(line, ' ')
+	line = strconv.AppendInt(line, int64(ib), 10)
+	line = append(line, '\n')
+	_, _ = writer.Write(line)
 }

@@ -9,17 +9,9 @@ type HitRecord struct {
 }
 
 type Hittable interface {
-	Hit(ray Ray, rayT Interval) (*HitRecord, bool)
-}
-
-func NewHitRecord(p Point3, normal Vec3, t float64, frontFace bool, material Material) *HitRecord {
-	return &HitRecord{
-		P:         p,
-		Normal:    normal,
-		Material:  material,
-		T:         t,
-		FrontFace: frontFace,
-	}
+	// Hit returns the nearest acceptable intersection by value.
+	Hit(ray Ray, rayT Interval) (HitRecord, bool)
+	BoundingBox() AABB
 }
 
 func (r *HitRecord) SetFaceNormal(ray Ray, outwardNormal Vec3) {
@@ -50,18 +42,30 @@ func (l *HittableList) Add(object Hittable) {
 	l.Objects = append(l.Objects, object)
 }
 
-func (l *HittableList) Hit(ray Ray, rayT Interval) (*HitRecord, bool) {
+func (l *HittableList) Hit(ray Ray, rayT Interval) (HitRecord, bool) {
 	hitAnything := false
 	closestSoFar := rayT.Max
-	var lastRecord *HitRecord = nil
+	var result HitRecord
 
 	for _, object := range l.Objects {
-		if record, ok := object.Hit(ray, NewInterval(rayT.Min, closestSoFar)); ok {
+		if candidate, ok := object.Hit(ray, NewInterval(rayT.Min, closestSoFar)); ok {
 			hitAnything = true
-			closestSoFar = record.T
-			lastRecord = record
+			closestSoFar = candidate.T
+			result = candidate
 		}
 	}
 
-	return lastRecord, hitAnything
+	return result, hitAnything
+}
+
+func (l *HittableList) BoundingBox() AABB {
+	if len(l.Objects) == 0 {
+		return EmptyAABB()
+	}
+
+	box := l.Objects[0].BoundingBox()
+	for _, object := range l.Objects[1:] {
+		box = SurroundingAABB(box, object.BoundingBox())
+	}
+	return box
 }

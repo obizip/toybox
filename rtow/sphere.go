@@ -19,7 +19,7 @@ func NewSphere(center Point3, radius float64, material Material) Sphere {
 	}
 }
 
-func (s Sphere) Hit(ray Ray, rayT Interval) (*HitRecord, bool) {
+func (s Sphere) Hit(ray Ray, rayT Interval) (HitRecord, bool) {
 	oc := s.Center.Sub(ray.Origin)
 	a := ray.Direction.LengthSquared()
 	h := ray.Direction.Dot(oc)
@@ -27,7 +27,7 @@ func (s Sphere) Hit(ray Ray, rayT Interval) (*HitRecord, bool) {
 
 	discriminant := h*h - a*c
 	if discriminant < 0 {
-		return nil, false
+		return HitRecord{}, false
 	}
 
 	sqrtd := math.Sqrt(discriminant)
@@ -37,17 +37,20 @@ func (s Sphere) Hit(ray Ray, rayT Interval) (*HitRecord, bool) {
 	if !rayT.Surrounds(root) {
 		root = (h + sqrtd) / a
 		if !rayT.Surrounds(root) {
-			return nil, false
+			return HitRecord{}, false
 		}
 	}
 
 	t := root
 	p := ray.At(t)
-	normal := p.Sub(s.Center).Div(Full(s.Radius))
-	record := NewHitRecord(p, normal, t, false, s.Material)
-
 	outwardNormal := p.Sub(s.Center).Div(Full(s.Radius))
+	record := HitRecord{P: p, T: t, Material: s.Material}
 	record.SetFaceNormal(ray, outwardNormal)
 
 	return record, true
+}
+
+func (s Sphere) BoundingBox() AABB {
+	radius := Full(s.Radius)
+	return NewAABB(s.Center.Sub(radius), s.Center.Add(radius))
 }

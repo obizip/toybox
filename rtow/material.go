@@ -5,7 +5,7 @@ import (
 )
 
 type Material interface {
-	Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool)
+	Scatter(rayIn Ray, record HitRecord) (attenuation Color, scattered Ray, ok bool)
 }
 
 type Lambertian struct {
@@ -18,7 +18,7 @@ func NewLambertian(albedo Color) *Lambertian {
 	}
 }
 
-func (l *Lambertian) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool) {
+func (l *Lambertian) Scatter(rayIn Ray, record HitRecord) (attenuation Color, scattered Ray, ok bool) {
 	scatterDirection := record.Normal.Add(NewRandUnitVec3())
 
 	// Catch degenerate scatter direction
@@ -44,7 +44,7 @@ func NewMetal(albedo Color, fuzz float64) *Metal {
 	}
 }
 
-func (m *Metal) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool) {
+func (m *Metal) Scatter(rayIn Ray, record HitRecord) (attenuation Color, scattered Ray, ok bool) {
 	reflected := rayIn.Direction.Reflect(record.Normal)
 	reflected = reflected.Unit().Add(Full(m.Fuzz).Mul(NewRandUnitVec3()))
 	scattered = NewRay(record.P, reflected)
@@ -65,7 +65,7 @@ func NewDielectric(refractionIndex float64) *Dielectric {
 	}
 }
 
-func (d *Dielectric) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool) {
+func (d *Dielectric) Scatter(rayIn Ray, record HitRecord) (attenuation Color, scattered Ray, ok bool) {
 	attenuation = NewColor(1.0, 1.0, 1.0)
 	var ri float64
 	if record.FrontFace {
