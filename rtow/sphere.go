@@ -13,8 +13,8 @@ type Sphere struct {
 func NewSphere(center Point3, radius float64, material Material) Sphere {
 	// TODO: Initialize the material pointer
 	return Sphere{
-		Center: center,
-		Radius: max(0, radius),
+		Center:   center,
+		Radius:   max(0, radius),
 		Material: material,
 	}
 }

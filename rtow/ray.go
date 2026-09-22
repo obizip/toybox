@@ -1,13 +1,13 @@
 package main
 
 type Ray struct {
-	Origin Point3
+	Origin    Point3
 	Direction Vec3
 }
 
 func NewRay(origin Point3, direction Vec3) Ray {
-	return Ray {
-		Origin: origin,
+	return Ray{
+		Origin:    origin,
 		Direction: direction,
 	}
 }

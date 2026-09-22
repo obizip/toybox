@@ -1,8 +1,8 @@
 package main
 
 import (
-	"io"
 	"fmt"
+	"io"
 	"math"
 )
 
@@ -26,9 +26,9 @@ func (c Color) Write(writer io.Writer) {
 	b := linearToGamma(c.Z)
 
 	intensity := NewInterval(0.0, 0.999)
-	ir := int(256 * intensity.Clamp(r));
-	ig := int(256 * intensity.Clamp(g));
-	ib := int(256 * intensity.Clamp(b));
+	ir := int(256 * intensity.Clamp(r))
+	ig := int(256 * intensity.Clamp(g))
+	ib := int(256 * intensity.Clamp(b))
 
 	fmt.Fprintf(writer, "%d %d %d\n", ir, ig, ib)
 }
