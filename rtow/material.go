@@ -1,5 +1,9 @@
 package main
 
+import (
+	"math"
+)
+
 type Material interface {
 	Scatter(rayIn Ray, record *HitRecord) (attenuation Color, scattered Ray, ok bool)
 }
@@ -70,8 +74,18 @@ func (d *Dielectric) Scatter(rayIn Ray, record *HitRecord) (attenuation Color, s
 		ri = d.RefractionIndex
 	}
 	unitDirection := rayIn.Direction.Unit()
-	refracted := unitDirection.Refract(unitDirection, record.Normal, ri)
-	scattered = NewRay(record.P, refracted)
+	cosTheta := min(unitDirection.Neg().Dot(record.Normal), 1.0)
+	sinTheta := math.Sqrt(1.0 - cosTheta*cosTheta)
+
+	cannotRefract := ri * sinTheta > 1.0
+	var direction Vec3
+	if cannotRefract {
+		direction = unitDirection.Reflect(record.Normal)
+	} else {
+		direction = unitDirection.Refract(record.Normal, ri)
+	}
+
+	scattered = NewRay(record.P, direction)
 	ok = true
 	return
 }
