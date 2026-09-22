@@ -53,6 +53,15 @@ func NewRandVec3OnHemisphere(normal Vec3) Vec3 {
 	}
 }
 
+func NewRandInUnitDisk() Vec3 {
+	for {
+		p := NewVec3(RandFrom(-1, 1), RandFrom(-1, 1), 0)
+		if p.LengthSquared() < 1 {
+			return p
+		}
+	}
+}
+
 func Full(f float64) Vec3 {
 	return NewVec3(f, f, f)
 }
@@ -112,6 +121,10 @@ func (v Vec3) String() string {
 
 func (v Vec3) Dot(other Vec3) float64 {
 	return v.X*other.X + v.Y*other.Y + v.Z*other.Z
+}
+
+func (u Vec3) Cross(v Vec3) Vec3 {
+	return NewVec3(u.Y*v.Z-u.Z*v.Y, u.Z*v.X-u.X*v.Z, u.X*v.Y-u.Y*v.X)
 }
 
 func (v Vec3) Unit() Vec3 {

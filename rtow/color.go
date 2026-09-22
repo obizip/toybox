@@ -12,6 +12,14 @@ func NewColor(r, g, b float64) Color {
 	return NewVec3(r, g, b)
 }
 
+func NewRandColor() Color {
+	return NewColor(Rand(), Rand(), Rand())
+}
+
+func NewRandColorFrom(min, max float64) Color {
+	return NewColor(RandFrom(min, max), RandFrom(min, max), RandFrom(min, max))
+}
+
 func linearToGamma(linearComponent float64) float64 {
 	if linearComponent > 0 {
 		return math.Sqrt(linearComponent)

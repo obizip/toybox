@@ -12,8 +12,8 @@ type Lambertian struct {
 	Albedo Color
 }
 
-func NewLambertial(albedo Color) Lambertian {
-	return Lambertian{
+func NewLambertian(albedo Color) *Lambertian {
+	return &Lambertian{
 		Albedo: albedo,
 	}
 }
@@ -37,8 +37,8 @@ type Metal struct {
 	Fuzz   float64
 }
 
-func NewMetal(albedo Color, fuzz float64) Metal {
-	return Metal{
+func NewMetal(albedo Color, fuzz float64) *Metal {
+	return &Metal{
 		Albedo: albedo,
 		Fuzz:   fuzz,
 	}
@@ -59,8 +59,8 @@ type Dielectric struct {
 	RefractionIndex float64
 }
 
-func NewDielectric(refractionIndex float64) Dielectric {
-	return Dielectric{
+func NewDielectric(refractionIndex float64) *Dielectric {
+	return &Dielectric{
 		RefractionIndex: refractionIndex,
 	}
 }
